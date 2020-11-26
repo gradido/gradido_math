@@ -34,7 +34,8 @@ void calculateDecayFactor(mpfr_ptr decay_factor, int days_per_year)
 	// precision error in advantage for user
 	mpfr_exp(decay_factor, decay_factor, MPFR_RNDZ);
 	printf("after exp\n");
-	mpfr_clear(temp);
+	//mpfr_clear(temp);
+	printf("skip clear\n");
 
 }
 
