@@ -25,9 +25,11 @@ TEST(gradido_math, calculate_decay_factor)
 	// print string
 	mpfr_exp_t exp_temp;
 	char* str_decay = mpfr_get_str(NULL, &exp_temp, 10, 0, decay_365, MPFR_RNDN);
+	printf("decay factor for 365 days: 0.%s\n", str_decay);
 	mpfr_free_str(str_decay);
 
 	str_decay = mpfr_get_str(NULL, &exp_temp, 10, 0, decay_366, MPFR_RNDN);
+	printf("decay factor for 366 days: 0.%s\n", str_decay);
 	mpfr_free_str(str_decay);
 
 	mpfr_clear(decay_365); mpfr_clear(decay_366); mpfr_clear(temp);
