@@ -48,7 +48,8 @@ long calculateDecay(mpfr_ptr decay_for_duration, mpfr_ptr gradido_decimal, long 
 	long gradido_decay_cent = mpfr_get_si(temp, MPFR_RNDZ);
 	mpfr_sub_si(gradido_decimal, temp, gradido_decay_cent, default_round);
 	// result without gradido_decimal
-	return gradido_cent - gradido_decay_cent;
+	//return gradido_cent - gradido_decay_cent;
+	return gradido_decay_cent;
 }
 
 long calculateDecayForDuration(mpfr_ptr decay_factor, mpfr_ptr gradido_decimal, long gradido_cent, unsigned long seconds, mpfr_ptr temp, mpfr_ptr temp2)
