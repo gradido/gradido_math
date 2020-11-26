@@ -4,6 +4,11 @@
 
 #include <chrono>
 
+TEST(gradido_math, test_test)
+{
+
+}
+
 TEST(gradido_math, calculate_decay_factor)
 {
 	mpfr_t decay_365, decay_366, temp;

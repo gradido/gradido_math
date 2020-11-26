@@ -9,7 +9,7 @@ extern "C" {
 
 //! \param decay_factor ptr to store the result
 //! \param days_per_year 365 days in normal year, 366 days in leap year
-//! \brief calculate decay factor per second for exponential decay calculation
+//! \brief calculate decay factor per second for exponential decay calculation, needs 200-300 micro seconds
 /*!
  *  calculate decay factor with a compound interest formula converted to q
  *  n = (lg Kn - lg K0) / lg q => <br>
