@@ -7,14 +7,21 @@
 TEST(gradido_math, calculate_decay_factor)
 {
 	mpfr_t decay_365, decay_366, temp;
+	printf("after variable declaration\n");
 	mpfr_init(decay_365); mpfr_init(decay_366); mpfr_init(temp);
+	printf("after variablen initialization\n");
 
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+	printf("after clock begin\n");
 	calculateDecayFactor(decay_365, 365);
+	printf("after first decay\n");
 	calculateDecayFactor(decay_366, 366);
+	printf("after second decay\n");
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+	printf("after clock end\n");
 
-	std::cout << "duration = " << std::chrono::duration_cast<std::chrono::microseconds> (end - begin).count() << " [micro s]" << std::endl;
+	std::cout << "duration = " << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << " [ns], ";
+	std::cout << std::chrono::duration_cast<std::chrono::microseconds> (end - begin).count() << " [micro s]" << std::endl;
 
 	// print string
 	mpfr_exp_t exp_temp;
@@ -42,7 +49,8 @@ TEST(gradido_math, calculate_decay_factor_for_duration)
 	calculateDecayFactorForDuration(decay_factor, decay_factor, 60*60*24*365);
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
-	std::cout << "duration = " << std::chrono::duration_cast<std::chrono::microseconds> (end - begin).count() << " [micro s]" << std::endl;
+	std::cout << "duration = " << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << " [ns], ";
+	std::cout << std::chrono::duration_cast<std::chrono::microseconds> (end - begin).count() << " [micro s]" << std::endl;
 
 	// print string
 	mpfr_exp_t exp_temp;
@@ -66,7 +74,8 @@ TEST(gradido_math, calculate_decay)
 	
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
-	std::cout << "duration = " << std::chrono::duration_cast<std::chrono::microseconds> (end - begin).count() << " [micro s]" << std::endl;
+	std::cout << "duration = " << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << " [ns], ";
+	std::cout << std::chrono::duration_cast<std::chrono::microseconds> (end - begin).count() << " [micro s]" << std::endl;
 
 	// print string
 	mpfr_exp_t exp_temp;
@@ -89,7 +98,8 @@ TEST(gradido_math, calculate_decay_for_duration)
 	auto cent_after = calculateDecayForDuration(decay_factor, gradido_decimal, 1000000, 60 * 60 * 24 * 365, temp, temp2);
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
-	std::cout << "duration = " << std::chrono::duration_cast<std::chrono::microseconds> (end - begin).count() << " [micro s]" << std::endl;
+	std::cout << "duration = " << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << " [ns], ";
+	std::cout << std::chrono::duration_cast<std::chrono::microseconds> (end - begin).count() << " [micro s]" << std::endl;
 
 	// print string
 	mpfr_exp_t exp_temp;
@@ -112,7 +122,8 @@ TEST(gradido_math, calculate_decay_for_duration_without_temp)
 	auto cent_after = calculateDecayForDurationWithoutTemp(decay_factor, gradido_decimal, 1000000, 60 * 60 * 24 * 365);
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
-	std::cout << "duration = " << std::chrono::duration_cast<std::chrono::microseconds> (end - begin).count() << " [micro s]" << std::endl;
+	std::cout << "duration = " << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << " [ns], ";
+	std::cout << std::chrono::duration_cast<std::chrono::microseconds> (end - begin).count() << " [micro s]" << std::endl;
 
 	// print string
 	mpfr_exp_t exp_temp;
