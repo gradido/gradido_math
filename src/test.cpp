@@ -7,18 +7,12 @@
 TEST(gradido_math, calculate_decay_factor)
 {
 	mpfr_t decay_365, decay_366, temp;
-	printf("after variable declaration\n");
 	mpfr_init(decay_365); mpfr_init(decay_366); mpfr_init(temp);
-	printf("after variablen initialization\n");
 
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-	printf("after clock begin\n");
 	calculateDecayFactor(decay_365, 365);
-	printf("after first decay\n");
 	calculateDecayFactor(decay_366, 366);
-	printf("after second decay\n");
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-	printf("after clock end\n");
 
 	std::cout << "duration = " << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << " [ns], ";
 	std::cout << std::chrono::duration_cast<std::chrono::microseconds> (end - begin).count() << " [micro s]" << std::endl;
@@ -26,11 +20,9 @@ TEST(gradido_math, calculate_decay_factor)
 	// print string
 	mpfr_exp_t exp_temp;
 	char* str_decay = mpfr_get_str(NULL, &exp_temp, 10, 0, decay_365, MPFR_RNDN);
-	printf("decay rate per second for 365 days: 0.%s\n", str_decay);
 	mpfr_free_str(str_decay);
 
 	str_decay = mpfr_get_str(NULL, &exp_temp, 10, 0, decay_366, MPFR_RNDN);
-	printf("decay rate per second for 366 days: 0.%s\n", str_decay);
 	mpfr_free_str(str_decay);
 
 	mpfr_clear(decay_365); mpfr_clear(decay_366); mpfr_clear(temp);

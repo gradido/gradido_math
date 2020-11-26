@@ -1,6 +1,5 @@
 [requires]
 gtest/1.8.1@bincrafters/stable
-mpfr/4.1.0
 
 [generators]
 cmake

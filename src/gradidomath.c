@@ -19,24 +19,20 @@ void calculateDecayFactor(mpfr_ptr decay_factor, int days_per_year)
 {
 	mpfr_t temp;
 	mpfr_init(temp);
-	printf("after temp init\n");
 	// (lg Kn - lg K0) / seconds in year
 	mpfr_log_ui(temp, 50, default_round);
-	printf("after lg Kn\n");
 	mpfr_log_ui(decay_factor, 100, default_round);
-	printf("after lg K0\n");
 	mpfr_sub(temp, temp, decay_factor, default_round);
-	printf("after lg Kn - lg K0\n");
+	
 	mpfr_set_ui(decay_factor, days_per_year * 60 * 60 * 24, default_round);
-	printf("after set days per_second\n");
+	
 	mpfr_div(decay_factor, temp, decay_factor, default_round);
-	printf("after div \n");
+	
 	// precision error in advantage for user
 	mpfr_exp(decay_factor, decay_factor, MPFR_RNDZ);
-	printf("after exp\n");
-	//mpfr_clear(temp);
-	printf("skip clear\n");
-
+	
+	mpfr_clear(temp);
+	
 }
 
 void calculateDecayFactorForDuration(mpfr_ptr decay_for_duration, mpfr_ptr decay_factor, unsigned long seconds)
