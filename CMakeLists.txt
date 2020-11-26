@@ -1,7 +1,12 @@
 cmake_minimum_required (VERSION 2.8.11)
 project (gradido_math C CXX)
 
+if(WIN32)
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
+elseif(WIN32)
 find_path(MPFR_INCLUDES NAMES mpfr.h PATHS $ENV{GMPDIR} $ENV{MPFRDIR}  ${INCLUDE_INSTALL_DIR})
+endif(WIN32)
 
 add_library (gradido_math STATIC src/gradidomath.c src/gradidomath.h)
 target_link_libraries(gradido_math)
@@ -11,8 +16,9 @@ target_link_libraries(gradido_math)
 target_include_directories (gradido_math PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # --------------- tests ------------------------------------
-#include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-#conan_basic_setup()
+if(WIN32)
+
+elseif(WIN32)
 configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
 execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
   RESULT_VARIABLE result
@@ -46,10 +52,17 @@ endif()
 
 find_library(MPFR_LIBRARIES mpfr  PATHS $ENV{GMPDIR} $ENV{MPFRDIR} ${LIB_INSTALL_DIR})
 #find_package(GTest CONFIG REQUIRED)
+endif(WIN32)
+
+
 
 add_executable(test src/test.cpp)
 target_compile_definitions(test PUBLIC "_TEST_BUILD")
-
+if(WIN32)
+target_link_libraries(test gradido_math ${CONAN_LIBS} ) 
+elseif(WIN32)
 target_link_libraries(test gtest_main gradido_math  ${MPFR_LIBRARIES} )
+endif(WIN32)
+
 
 add_test(NAME main COMMAND test)
