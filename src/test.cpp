@@ -77,16 +77,18 @@ TEST(gradido_math, calculate_decay_factor_for_duration)
 	mpfr_clear(decay_factor); mpfr_clear(temp);
 }
 
-TEST(gradido_math, calculate_decay)
+TEST(gradido_math, calculate_decay_fast)
 {
 	mpfr_t decay_factor, gradido_decimal, temp;
-	mpfr_init(decay_factor); mpfr_init_set_si(gradido_decimal, 0, MPFR_RNDN); mpfr_init(temp);
+	mpz_t  gradido_cent;
+	mpfr_init(decay_factor); mpfr_init_set_ui(gradido_decimal, 0, MPFR_RNDN); mpfr_init(temp);
+	mpz_init_set_ui(gradido_cent, 1000000);
 
 	calculateDecayFactor(decay_factor, 365);
 	calculateDecayFactorForDuration(decay_factor, decay_factor, 60 * 60 * 24 * 365);
 
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-	auto cent_after = calculateDecay(decay_factor, gradido_decimal, 1000000, temp);
+	calculateDecayFast(decay_factor, gradido_decimal, gradido_cent, temp);
 	
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
@@ -103,24 +105,40 @@ TEST(gradido_math, calculate_decay)
 	mpfr_exp_t exp_temp;
 	char* str_decay = mpfr_get_str(NULL, &exp_temp, 10, 0, gradido_decimal, MPFR_RNDN);
 	//printf("gradido_decimal: 0.%s\n", str_decay);
-	// 99897064152173698
+	// 99897064152173698	   
 	ASSERT_STREQ(str_decay, "99897064152173698");
 	mpfr_free_str(str_decay);
 
 	//printf("gradido cent after: %d\n", cent_after);
+	auto cent_after = mpz_get_ui(gradido_cent);
 	ASSERT_EQ(499999, cent_after);
 	mpfr_clear(decay_factor); mpfr_clear(gradido_decimal); mpfr_clear(temp);
+	mpz_clear(gradido_cent);
 }
 
-TEST(gradido_math, calculate_decay_for_duration)
+TEST(gradido_math, check_conversations)
 {
-	mpfr_t decay_factor, gradido_decimal, temp, temp2;
-	mpfr_init(decay_factor); mpfr_init_set_si(gradido_decimal, 0, MPFR_RNDN); mpfr_init(temp); mpfr_init(temp2);
+	mpz_t value, temp;
+	mpz_init(value); mpz_init(temp);
+	mpz_set_sll(value, 1092147483647);
+	ASSERT_EQ(1092147483647, mpz_get_sll(value, temp));
+
+	mpz_clear(value); mpz_clear(temp);
+}
+
+
+TEST(gradido_math, calculate_decay)
+{
+	mpfr_t decay_factor;
+	mpfr_init(decay_factor); 
+	GradidoWithDecimal gradidos;
+	gradidos.decimal = 0;
+	gradidos.gradido = 1000000;
 
 	calculateDecayFactor(decay_factor, 365);
 
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-	auto cent_after = calculateDecayForDuration(decay_factor, gradido_decimal, 1000000, 60 * 60 * 24 * 365, temp, temp2);
+	gradidos = calculateDecay(gradidos, 60 * 60 * 24 * 365, decay_factor);
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
 
@@ -133,104 +151,50 @@ TEST(gradido_math, calculate_decay_for_duration)
 		std::cout << duration.count() << " ns" << std::endl;
 	}
 
-	// print string
-
-	mpfr_exp_t exp_temp;
-	char* str_decay = mpfr_get_str(NULL, &exp_temp, 10, 0, gradido_decimal, MPFR_RNDN);
-	//printf("gradido_decimal: 0.%s\n", str_decay);
-	ASSERT_STREQ(str_decay, "99897064152173698");
-	mpfr_free_str(str_decay);
 
 	// after 1 year
-	//printf("gradido cent after: %d\n", cent_after);
-	ASSERT_EQ(499999, cent_after);
+	ASSERT_EQ(gradidos.decimal, 998971);
+	ASSERT_EQ(gradidos.gradido, 499999);
 	
-	cent_after = calculateDecayForDuration(decay_factor, gradido_decimal, 1000000, 60 * 60 * 24, temp, temp2);
-	str_decay = mpfr_get_str(NULL, &exp_temp, 10, 0, gradido_decimal, MPFR_RNDN);
-	//printf("gradido_decimal: 0.%s\n", str_decay);
-	//printf("gradido cent after: %d\n", cent_after2);
-	ASSERT_STREQ(str_decay, "76572132809087634");
-	mpfr_free_str(str_decay);
-
+	gradidos.gradido = 1000000;
+	gradidos = calculateDecay(gradidos, 60 * 60 * 24, decay_factor);
+	
 	// after 1 day
-	ASSERT_EQ(998103, cent_after);
+	ASSERT_EQ(gradidos.decimal, 765722);
+	ASSERT_EQ(gradidos.gradido, 998103);
 
-	cent_after = calculateDecayForDuration(decay_factor, gradido_decimal, 1000000, 60 * 60 * 24 * 91, temp, temp2);
-	str_decay = mpfr_get_str(NULL, &exp_temp, 10, 0, gradido_decimal, MPFR_RNDN);
-	//printf("gradido_decimal: 0.%s\n", str_decay);
-	//printf("gradido cent after: %d\n", cent_after);
-	ASSERT_STREQ(str_decay, "37639072875026613");
-	mpfr_free_str(str_decay);
-
-	// after 91 days, roughly 3 months, 1/4 year
-	ASSERT_EQ(841296, cent_after);
+	gradidos.gradido = 1000000;
+	gradidos = calculateDecay(gradidos, 60 * 60 * 24 * 91, decay_factor);
 	
-
-	cent_after = calculateDecayForDuration(decay_factor, gradido_decimal, 1000000, 60 * 60 * 24 * 182, temp, temp2);
-	str_decay = mpfr_get_str(NULL, &exp_temp, 10, 0, gradido_decimal, MPFR_RNDN);
-	//printf("gradido_decimal: 0.%s\n", str_decay);
-	//printf("gradido cent after: %d\n", cent_after);
-	ASSERT_STREQ(str_decay, "77540682477410883");
-	mpfr_free_str(str_decay);
-
+	// after 91 days, roughly 3 months, 1/4 year
+	ASSERT_EQ(gradidos.decimal, 376391);
+	ASSERT_EQ(gradidos.gradido, 841296);
+	
+	gradidos.gradido = 1000000;
+	gradidos = calculateDecay(gradidos, 60 * 60 * 24 * 182, decay_factor);
+	
 	// after 182 days, roughly 6 months, 1/2 year
-	ASSERT_EQ(707778, cent_after);
+	ASSERT_EQ(gradidos.decimal, 775407);
+	ASSERT_EQ(gradidos.gradido, 707778);
 
-	cent_after = calculateDecayForDuration(decay_factor, gradido_decimal, 1000000, 60 * 60 * 24 * 300, temp, temp2);
-	str_decay = mpfr_get_str(NULL, &exp_temp, 10, 0, gradido_decimal, MPFR_RNDN);
-	//printf("gradido_decimal: 0.%s\n", str_decay);
-	//printf("gradido cent after: %d\n", cent_after);
-	ASSERT_STREQ(str_decay, "89608198532368988");
-	mpfr_free_str(str_decay);
 
+	gradidos.gradido = 1000000;
+	gradidos = calculateDecay(gradidos, 60 * 60 * 24 * 300, decay_factor);
+	
 	// after 300 days, roughly 10 months
-	ASSERT_EQ(565689, cent_after);
+	ASSERT_EQ(gradidos.decimal, 896082);
+	ASSERT_EQ(gradidos.gradido, 565689);
 
-	cent_after = calculateDecayForDuration(decay_factor, gradido_decimal, cent_after, 60 * 60 * 24 * 65, temp, temp2);
-	str_decay = mpfr_get_str(NULL, &exp_temp, 10, 0, gradido_decimal, MPFR_RNDN);
-	//printf("gradido_decimal: 0.%s\n", str_decay);
-	//printf("gradido cent after: %d\n", cent_after);
-	ASSERT_STREQ(str_decay, "38667405309388414");
-	mpfr_free_str(str_decay);
-
-	// after 1 year
-	ASSERT_EQ(500000, cent_after);
+	gradidos = calculateDecay(gradidos, 60 * 60 * 24 * 65, decay_factor);
+	
+	// after 1 year (accumulated)
+	ASSERT_EQ(gradidos.decimal, 386674);
+	ASSERT_EQ(gradidos.gradido, 500000);
 
 
-	mpfr_clear(decay_factor); mpfr_clear(gradido_decimal); mpfr_clear(temp); mpfr_clear(temp2);
+	mpfr_clear(decay_factor);
 }
 
-TEST(gradido_math, calculate_decay_for_duration_without_temp)
-{
-	mpfr_t decay_factor, gradido_decimal;
-	mpfr_init(decay_factor); mpfr_init_set_si(gradido_decimal, 0, MPFR_RNDN);
-
-	calculateDecayFactor(decay_factor, 365);
-
-	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-	auto cent_after = calculateDecayForDurationWithoutTemp(decay_factor, gradido_decimal, 1000000, 60 * 60 * 24 * 365);
-	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-
-	auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin);
-	std::cout << "[ DURATION ] ";
-	if (duration.count() > 1100) {
-		std::cout << std::chrono::duration_cast<std::chrono::microseconds>(duration).count() << " micro s" << std::endl;
-	}
-	else {
-		std::cout << duration.count() << " ns" << std::endl;
-	}
-
-	// print string
-	mpfr_exp_t exp_temp;
-	char* str_decay = mpfr_get_str(NULL, &exp_temp, 10, 0, gradido_decimal, MPFR_RNDN);
-	//printf("gradido_decimal: 0.%s\n", str_decay);
-	ASSERT_STREQ(str_decay, "99897064152173698");
-	mpfr_free_str(str_decay);
-
-	//printf("gradido cent after: %d\n", cent_after);
-	ASSERT_EQ(499999, cent_after);
-	mpfr_clear(decay_factor); mpfr_clear(gradido_decimal);
-}
 //*/
 
 int main(int argc, char** argv) 

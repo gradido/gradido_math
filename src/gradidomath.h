@@ -7,7 +7,25 @@
 extern "C" {
 #endif
 
-//! \param decay_factor ptr to store the result
+struct S_GradidoWithDecimal
+{
+	long long gradido;
+	long decimal; // / 1,000,000
+};
+
+// 1 second = 1×10^9 nanoseconds
+
+#define GRADIDO_DECIMAL_CONVERSION_FACTOR 1000000
+
+typedef struct S_GradidoWithDecimal GradidoWithDecimal;
+
+// conversion functions between normal data types and mpfr datatypes
+long long mpz_get_sll(mpz_ptr n, mpz_ptr tmp);
+unsigned long long mpz_get_ull(mpz_ptr n, mpz_ptr tmp);
+void mpz_set_sll(mpz_ptr n, long long sll);
+void mpz_set_ull(mpz_ptr n, unsigned long long ull);
+
+//! \param decay_factor to store the result, decay factor per second
 //! \param days_per_year 365 days in normal year, 366 days in leap year
 //! \brief calculate decay factor per second for exponential decay calculation, needs 100-400 micro seconds depending on processor
 /*!
@@ -24,13 +42,48 @@ extern "C" {
  *  <li>K0 = 100 (capital at start)</li>
  * </ul>
  * 
-*/
+ */
 void calculateDecayFactor(mpfr_ptr decay_factor, int days_per_year);
+
+//! \param decay_for_duration store the result, decay factor for specific duration
+//! \param decay_factor per second from ::calculateDecayFactor
+//! \param seconds duration in seconds
+//! \brief calculate decay_for_duration = decay_factor^seconds
+/*!
+ * calculate the decay factor for the specific duration
+ */
 void calculateDecayFactorForDuration(mpfr_ptr decay_for_duration, mpfr_ptr decay_factor, unsigned long seconds);
 
-long calculateDecay(mpfr_ptr decay_for_duration, mpfr_ptr gradido_decimal, long gradido_cent, mpfr_ptr temp);
-long calculateDecayForDuration(mpfr_ptr decay_factor, mpfr_ptr gradido_decimal, long gradido_cent, unsigned long seconds, mpfr_ptr temp, mpfr_ptr temp2);
-long calculateDecayForDurationWithoutTemp(mpfr_ptr decay_factor, mpfr_ptr gradido_decimal, long gradido_cent, unsigned long seconds);
+//! \param decay_for_duration decay factor for specific duration, taken from ::calculateDecayFactorForDuration
+//! \param gradido_decimal gradido decimal, already as decimal < 1, for saving more accuracy for decay, contain updated value after function call
+//! \param gradido_cent as mpz, contain new, reduced value after function call
+//! \param temp only for storing between result, can reuse afterwards for another things
+//! \brief calculate decayed balance without memory allocation
+/*!
+ * calculate decay with large precision: <br>
+ * temp = (gradido_decimal + gradido_cent) * decay_for_duration <br>
+ * gradido_cent = round(temp) <br>
+ * gradido_decimal = temp - gradido_cent <br>
+ */
+void calculateDecayFast(mpfr_ptr decay_for_duration, mpfr_ptr gradido_decimal, mpz_ptr gradido_cent, mpfr_ptr temp);
+
+//! \param decay_for_duration decay factor for specific duration, taken from ::calculateDecayFactorForDuration
+//! \param input Gradido cent and decimal in on struct, will be converted before calculating
+//! \brief calculate decayed balance for specific time duration, allocate memory 
+//! \return decayed gradido balance
+/*!
+ * convert input.gradido to gradido_cent:mpz_t and input.decimal / GRADIDO_DECIMAL_CONVERSION_FACTOR to gradido_decimal:mpfr_t
+ * call calculateDecayFast
+ * convert result back to GradidoWithDecimal struct
+ */
+GradidoWithDecimal calculateDecayForDuration(mpfr_ptr decay_for_duration, GradidoWithDecimal input);
+
+//! \param input Gradido cent and decimal in on struct, will be converted before calculating
+//! \param seconds duration in seconds
+//! \param decay_factor per second from ::calculateDecayFactor
+//! \brief call ::calculateDecayFactorForDuration and ::calculateDecayForDuration, allocate memory 
+//! \return decayed gradido balance
+GradidoWithDecimal calculateDecay(GradidoWithDecimal input, unsigned long seconds, mpfr_ptr decay_factor);
 
 #ifdef __cplusplus
 }
