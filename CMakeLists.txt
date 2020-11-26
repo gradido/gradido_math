@@ -61,7 +61,7 @@ target_compile_definitions(test PUBLIC "_TEST_BUILD")
 if(WIN32)
 target_link_libraries(test gradido_math ${CONAN_LIBS} ) 
 else()
-target_link_libraries(test gtest_main gradido_math  ${MPFR_LIBRARIES} )
+target_link_libraries(test gtest_main gradido_math  ${MPFR_LIBRARIES} gmp)
 endif()
 
 
