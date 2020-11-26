@@ -131,3 +131,15 @@ TEST(gradido_math, calculate_decay_for_duration_without_temp)
 	printf("gradido cent after: %d\n", cent_after);
 	mpfr_clear(decay_factor); mpfr_clear(gradido_decimal);
 }
+//*/
+
+int main(int argc, char** argv) 
+{
+//	void* memtest = malloc(100);
+  //      free(memtest);
+	::testing::InitGoogleTest(&argc, argv);
+
+	auto result = RUN_ALL_TESTS();
+	return result;
+}
+
