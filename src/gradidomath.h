@@ -19,12 +19,6 @@ struct S_GradidoWithDecimal
 
 typedef struct S_GradidoWithDecimal GradidoWithDecimal;
 
-// conversion functions between normal data types and mpfr datatypes
-long long mpz_get_sll(mpz_ptr n, mpz_ptr tmp);
-unsigned long long mpz_get_ull(mpz_ptr n, mpz_ptr tmp);
-void mpz_set_sll(mpz_ptr n, long long sll);
-void mpz_set_ull(mpz_ptr n, unsigned long long ull);
-
 //! \param decay_factor to store the result, decay factor per second
 //! \param days_per_year 365 days in normal year, 366 days in leap year
 //! \brief calculate decay factor per second for exponential decay calculation, needs 100-400 micro seconds depending on processor

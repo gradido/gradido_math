@@ -15,45 +15,6 @@ MPFR_RNDNA = -1 // round to nearest, with ties away from zero (mpfr_round)
 */
 static const mpfr_rnd_t default_round = MPFR_RNDN;
 
-// conversion taken from: https://stackoverflow.com/questions/6248723/mpz-t-to-unsigned-long-long-conversion-gmp-lib
-
-unsigned long long mpz_get_ull(mpz_ptr n, mpz_ptr tmp)
-{
-	unsigned long lo, hi;
-	//mpz_t tmp;
-
-	mpz_init(tmp);
-	mpz_mod_2exp(tmp, n, 64);   /* tmp = (lower 64 bits of n) */
-
-	lo = (unsigned long)mpz_get_ui(tmp);       /* lo = tmp & 0xffffffff */
-	mpz_div_2exp(tmp, tmp, 32); /* tmp >>= 32 */
-	hi = (unsigned long)mpz_get_ui(tmp);       /* hi = tmp & 0xffffffff */
-
-	//mpz_clear(tmp);
-
-	return (((unsigned long long)hi) << 32) + lo;
-}
-
-long long mpz_get_sll(mpz_ptr n, mpz_ptr tmp)
-{
-	return (long long)mpz_get_ull(n, tmp); /* just use unsigned version */
-}
-
-void mpz_set_sll(mpz_ptr n, long long sll)
-{
-	mpz_set_si(n, (int)(sll >> 32));     /* n = (int)sll >> 32 */
-	mpz_mul_2exp(n, n, 32);             /* n <<= 32 */
-	mpz_add_ui(n, n, (unsigned int)sll); /* n += (unsigned int)sll */
-}
-
-void mpz_set_ull(mpz_ptr n, unsigned long long ull)
-{
-	mpz_set_ui(n, (unsigned int)(ull >> 32)); /* n = (unsigned int)(ull >> 32) */
-	mpz_mul_2exp(n, n, 32);                   /* n <<= 32 */
-	mpz_add_ui(n, n, (unsigned int)ull);      /* n += (unsigned int)ull */
-}
-
-
 
 void calculateDecayFactor(mpfr_ptr decay_factor, int days_per_year)
 {
@@ -104,12 +65,14 @@ GradidoWithDecimal calculateDecayForDuration(mpfr_ptr decay_for_duration, Gradid
 
 	mpfr_set_si(gradido_decimal, input.decimal, default_round);
 	mpfr_div_si(gradido_decimal, gradido_decimal, GRADIDO_DECIMAL_CONVERSION_FACTOR, default_round);
-	mpz_set_sll(gdd_cent, input.gradido);
+	//mpz_set_sll(gdd_cent, input.gradido);
+	mpz_set_si(gdd_cent, input.gradido);
 
 	calculateDecayFast(decay_for_duration, gradido_decimal, gdd_cent, temp);
 
 	GradidoWithDecimal result;
-	result.gradido = mpz_get_sll(gdd_cent, z_temp);
+	//result.gradido = mpz_get_sll(gdd_cent, z_temp);
+	result.gradido = mpz_get_si(gdd_cent);
 	mpfr_mul_si(gradido_decimal, gradido_decimal, GRADIDO_DECIMAL_CONVERSION_FACTOR, default_round);
 	result.decimal = mpfr_get_si(gradido_decimal, default_round);
 

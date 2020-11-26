@@ -116,15 +116,6 @@ TEST(gradido_math, calculate_decay_fast)
 	mpz_clear(gradido_cent);
 }
 
-TEST(gradido_math, check_conversations)
-{
-	mpz_t value, temp;
-	mpz_init(value); mpz_init(temp);
-	mpz_set_sll(value, 1092147483647);
-	ASSERT_EQ(1092147483647, mpz_get_sll(value, temp));
-
-	mpz_clear(value); mpz_clear(temp);
-}
 
 
 TEST(gradido_math, calculate_decay)
